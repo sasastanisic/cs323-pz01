@@ -4,8 +4,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define PRODUCT_NUM 2
-
 typedef struct {
 
 	char name[30];
@@ -34,14 +32,39 @@ int main() {
 
 	welcome_menu();
 
-	Product product[PRODUCT_NUM];
+	int numberOfProducts;
 
-	printf("Enter data for %d products:\n", PRODUCT_NUM);
-	for (int i = 0; i < PRODUCT_NUM; i++) {
+	printf("Enter the number of products: ");
+	scanf_s("%d", &numberOfProducts);
+	while (getchar() != '\n');
+
+	Product* products = (Product*)malloc(numberOfProducts * sizeof(Product));
+
+	if (products == NULL) {
+		printf("Error in allocating memory!\n");
+		return 1;
+	}
+
+	for (int i = 0; i < numberOfProducts; i++) {
 		printf("Product %d:\n", i + 1);
-		enter_data(&product[i]);
+		enter_data(&products[i]);
 		while (getchar() != '\n');
 	}
+
+	FILE* file = fopen("products.txt", "a");
+
+	if (file == NULL) {
+		printf("Error happened!\n");
+		return 1;
+	}
+
+	for (int i = 0; i < numberOfProducts; i++) {
+		fprintf(file, "%s %s %.2f %d\n", products[i].name, products[i].code, products[i].price, products[i].quantity);
+	}
+
+	fclose(file);
+
+	free(products);
 
 	return 0;
 }
