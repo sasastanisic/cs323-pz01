@@ -1,4 +1,5 @@
 #define _CRT_SECURE_NO_WARNINGS
+#pragma warning(disable:6385)
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -64,7 +65,30 @@ int main() {
 
 	fclose(file);
 
+	FILE* readFile = fopen("products.txt", "r");
+
+	if (readFile == NULL) {
+		printf("Error happened!\n");
+		return 1;
+	}
+
+	printf("Products in our shop are:\n");
+
+	printf("%-30s %-30s %-30s %-10s\n", "Product", "Code", "Price", "Quantity");
+	printf("-----------------------------------------------------------------------------------------------------\n");
+
+	while (!feof(readFile)) {
+		Product product;
+		if (fscanf(readFile, "%s %s %f %d\n", &product.name, &product.code, &product.price, &product.quantity) == 4) {
+			printf("%-30s %-30s %-30.2f %-10d\n", product.name, product.code, product.price, product.quantity);
+		}
+	}
+
+	fclose(readFile);
+
 	free(products);
+
+	// TODO: refactor code, naming convention, divide in smaller functions, add comments
 
 	return 0;
 }
