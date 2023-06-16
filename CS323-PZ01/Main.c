@@ -14,7 +14,7 @@ typedef struct {
 
 } Product;
 
-void enter_data(Product* product) {
+void enter_product_data(Product* product) {
 	printf("Name -> ");
 	gets(product->name);
 	printf("Code -> ");
@@ -25,6 +25,44 @@ void enter_data(Product* product) {
 	scanf_s("%d", &product->quantity);
 }
 
+void save_products(Product* products, int number_of_products) {
+	FILE* file = fopen("products.txt", "a");
+
+	if (file == NULL) {
+		printf("Error happened!\n");
+		return;
+	}
+
+	for (int i = 0; i < number_of_products; i++) {
+		fprintf(file, "%s %s %.2f %d\n", products[i].name, products[i].code, products[i].price, products[i].quantity);
+	}
+
+	fclose(file);
+}
+
+void read_products() {
+	FILE* read_file = fopen("products.txt", "r");
+
+	if (read_file == NULL) {
+		printf("Error happened!\n");
+		return;
+	}
+
+	printf("Products in our shop are:\n");
+
+	printf("%-30s %-30s %-30s %-10s\n", "Product", "Code", "Price", "Quantity");
+	printf("-----------------------------------------------------------------------------------------------------\n");
+
+	while (!feof(read_file)) {
+		Product product;
+		if (fscanf(read_file, "%s %s %f %d\n", product.name, product.code, &product.price, &product.quantity) == 4) {
+			printf("%-30s %-30s %-30.2f %-10d\n", product.name, product.code, product.price, product.quantity);
+		}
+	}
+
+	fclose(read_file);
+}
+
 void welcome_menu() {
 	printf("Welcome to shop!\n");
 }
@@ -33,62 +71,30 @@ int main() {
 
 	welcome_menu();
 
-	int numberOfProducts;
+	int number_of_products;
 
 	printf("Enter the number of products: ");
-	scanf_s("%d", &numberOfProducts);
+	scanf_s("%d", &number_of_products);
 	while (getchar() != '\n');
 
-	Product* products = (Product*)malloc(numberOfProducts * sizeof(Product));
+	Product* products = (Product*)malloc(number_of_products * sizeof(Product));
 
 	if (products == NULL) {
 		printf("Error in allocating memory!\n");
 		return 1;
 	}
 
-	for (int i = 0; i < numberOfProducts; i++) {
+	for (int i = 0; i < number_of_products; i++) {
 		printf("Product %d:\n", i + 1);
-		enter_data(&products[i]);
+		enter_product_data(&products[i]);
 		while (getchar() != '\n');
 	}
 
-	FILE* file = fopen("products.txt", "a");
+	save_products(products, number_of_products);
 
-	if (file == NULL) {
-		printf("Error happened!\n");
-		return 1;
-	}
-
-	for (int i = 0; i < numberOfProducts; i++) {
-		fprintf(file, "%s %s %.2f %d\n", products[i].name, products[i].code, products[i].price, products[i].quantity);
-	}
-
-	fclose(file);
-
-	FILE* readFile = fopen("products.txt", "r");
-
-	if (readFile == NULL) {
-		printf("Error happened!\n");
-		return 1;
-	}
-
-	printf("Products in our shop are:\n");
-
-	printf("%-30s %-30s %-30s %-10s\n", "Product", "Code", "Price", "Quantity");
-	printf("-----------------------------------------------------------------------------------------------------\n");
-
-	while (!feof(readFile)) {
-		Product product;
-		if (fscanf(readFile, "%s %s %f %d\n", &product.name, &product.code, &product.price, &product.quantity) == 4) {
-			printf("%-30s %-30s %-30.2f %-10d\n", product.name, product.code, product.price, product.quantity);
-		}
-	}
-
-	fclose(readFile);
+	read_products();
 
 	free(products);
-
-	// TODO: refactor code, naming convention, divide in smaller functions, add comments
 
 	return 0;
 }
