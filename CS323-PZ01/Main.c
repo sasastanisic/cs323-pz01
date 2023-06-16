@@ -17,6 +17,11 @@ typedef struct {
 void enter_product_data(Product* product) {
 	printf("Name -> ");
 	gets(product->name);
+	for (int i = 0; product->name[i] != '\0'; i++) {
+		if (product->name[i] == ' ') {
+			product->name[i] = '_';
+		}
+	}
 	printf("Code -> ");
 	gets(product->code);
 	printf("Price -> ");
@@ -56,6 +61,11 @@ void read_products() {
 	while (!feof(read_file)) {
 		Product product;
 		if (fscanf(read_file, "%s %s %f %d\n", product.name, product.code, &product.price, &product.quantity) == 4) {
+			for (int i = 0; product.name[i] != '\0'; i++) {
+				if (product.name[i] == '_') {
+					product.name[i] = ' ';
+				}
+			}
 			printf("%-30s %-30s %-30.2f %-10d\n", product.name, product.code, product.price, product.quantity);
 		}
 	}
