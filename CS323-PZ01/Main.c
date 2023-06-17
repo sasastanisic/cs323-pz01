@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 typedef struct {
 
@@ -14,16 +15,33 @@ typedef struct {
 
 } Product;
 
+void generate_random_code(char* code, int length) {
+	static const char charset[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+	int charset_length = sizeof(charset) - 1;
+
+	for (int i = 0; i < length; i++) {
+		int index = rand() % charset_length;
+		code[i] = charset[index];
+	}
+
+	code[length] = '\0';
+}
+
+void swap_characters(char* name, char ch1, char ch2) {
+	for (int i = 0; name[i] != '\0'; i++) {
+		if (name[i] == ch1) {
+			name[i] = ch2;
+		}
+	}
+}
+
 void enter_product_data(Product* product) {
 	printf("Name -> ");
 	gets(product->name);
-	for (int i = 0; product->name[i] != '\0'; i++) {
-		if (product->name[i] == ' ') {
-			product->name[i] = '_';
-		}
-	}
-	printf("Code -> ");
-	gets(product->code);
+	swap_characters(product->name, ' ', '_');
+
+	generate_random_code(product->code, 10);
+
 	printf("Price -> ");
 	scanf_s("%f", &product->price);
 	printf("Quantity -> ");
@@ -61,11 +79,7 @@ void read_products() {
 	while (!feof(read_file)) {
 		Product product;
 		if (fscanf(read_file, "%s %s %f %d\n", product.name, product.code, &product.price, &product.quantity) == 4) {
-			for (int i = 0; product.name[i] != '\0'; i++) {
-				if (product.name[i] == '_') {
-					product.name[i] = ' ';
-				}
-			}
+			swap_characters(product.name, '_', ' ');
 			printf("%-30s %-30s %-30.2f %-10d\n", product.name, product.code, product.price, product.quantity);
 		}
 	}
@@ -82,6 +96,8 @@ int main() {
 	welcome_menu();
 
 	int number_of_products;
+
+	srand((unsigned int)time(NULL));
 
 	printf("Enter the number of products: ");
 	scanf_s("%d", &number_of_products);
