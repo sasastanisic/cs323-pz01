@@ -46,6 +46,8 @@ void enter_product_data(Product* product) {
 	scanf_s("%f", &product->price);
 	printf("Quantity -> ");
 	scanf_s("%d", &product->quantity);
+	printf("-----------------------------------\n");
+	printf("Product data is successfully added!\n\n");
 }
 
 void save_products(Product* products, int number_of_products) {
@@ -54,6 +56,10 @@ void save_products(Product* products, int number_of_products) {
 	if (file == NULL) {
 		printf("Error happened!\n");
 		return;
+	}
+
+	if (number_of_products == 0) {
+		printf("You haven't added any new products\n\n");
 	}
 
 	for (int i = 0; i < number_of_products; i++) {
@@ -84,43 +90,78 @@ void read_products() {
 		}
 	}
 
+	printf("\n");
 	fclose(read_file);
 }
 
 void welcome_menu() {
-	printf("Welcome to shop!\n");
+	printf("  >>   Welcome to shop!   <<  \n");
+	printf("-----------------------------\n\n");
+}
+
+void display_options() {
+	printf("  >>   Choose an option from the menu:   <<  \n");
+	printf("---------------------------------------------\n");
+	printf("> 1 - Add products\n");
+	printf("> 2 - View products\n");
+	printf("> 3 - Exit\n");
+	printf("---------------------------------------------\n");
+	printf("--> ");
+}
+
+void menu() {
+	char choice;
+	int number_of_products;
+
+	do {
+		display_options();
+		choice = getchar();
+		printf("\n");
+		while (getchar() != '\n');
+
+		switch (choice) {
+		case '1':
+			printf("Enter the number of products: ");
+			scanf_s("%d", &number_of_products);
+			while (getchar() != '\n');
+
+			Product* products = (Product*)malloc(number_of_products * sizeof(Product));
+
+			if (products == NULL) {
+				printf("Error in allocating memory!\n");
+				return;
+			}
+
+			for (int i = 0; i < number_of_products; i++) {
+				printf("Product %d:\n", i + 1);
+				enter_product_data(&products[i]);
+				while (getchar() != '\n');
+			}
+
+			save_products(products, number_of_products);
+
+			free(products);
+			break;
+		case '2':
+			read_products();
+			break;
+		case '3':
+			printf("You have successfully exited the program.\n");
+			break;
+		default:
+			printf("Invalid choice. Please try again.\n");
+			break;
+		}
+	} while (choice != '3');
 }
 
 int main() {
 
 	welcome_menu();
 
-	int number_of_products;
-
 	srand((unsigned int)time(NULL));
 
-	printf("Enter the number of products: ");
-	scanf_s("%d", &number_of_products);
-	while (getchar() != '\n');
-
-	Product* products = (Product*)malloc(number_of_products * sizeof(Product));
-
-	if (products == NULL) {
-		printf("Error in allocating memory!\n");
-		return 1;
-	}
-
-	for (int i = 0; i < number_of_products; i++) {
-		printf("Product %d:\n", i + 1);
-		enter_product_data(&products[i]);
-		while (getchar() != '\n');
-	}
-
-	save_products(products, number_of_products);
-
-	read_products();
-
-	free(products);
+	menu();
 
 	return 0;
 }
